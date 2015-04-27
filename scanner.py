@@ -1,5 +1,8 @@
 import optparse
 import socket
+import threading
+
+screenLock = threading.Semaphore(value=1)
 
 
 def connScan(tgtHost, tgtPort):
@@ -8,32 +11,36 @@ def connScan(tgtHost, tgtPort):
         connSkt.connect((tgtHost, tgtPort))
         connSkt.send('SomeText\r\n')
         results = connSkt.recv(100)
+        screenLock.acquire()
         print '[+]%d/tcp open' % tgtPort
-        print '[+] %s' % str(results)
-        connSkt.close()
-    except: # fix bare exception!!!!!!!!!!!!
+        print '[+] %s' % str(results).split('\n')[0]
+    except:  # fix bare exception!!!!!!!!!!!!
+        screenLock.acquire()
         print '[-]%d/tcp closed' % tgtPort
+    finally:
+        screenLock.release()
+        connSkt.close()
 
 
 def portScan(tgtHost, tgtPorts):
     try:
         tgtIP = socket.gethostbyname(tgtHost)
-    except: # here too
+    except:  # here too
         print "[-] Cannot resolve '%s': Unknown host" % tgtHost
         return
     try:
         tgtName = socket.gethostbyaddr(tgtIP)
         print '\n[+] Scan results for: %s' % tgtName[0]
-    except: # make it stop!
+    except:  # make it stop!
         print '\n[+] Scan results for: ' + tgtIP
     socket.setdefaulttimeout(1)
     for tgtPort in tgtPorts:
-        print 'Scanning port ' + tgtPort
-        connScan(tgtHost, int(tgtPort))
+        t = threading.Thread(target=connScan, args=(tgtHost, int(tgtPort)))
+        t.start()
 
 
 def main():
-    parser = optparse.OptionParser('usage %prog -H <target host> -p <target port>')
+    parser = optparse.OptionParser('%prog -H <target host> -p <target port>')
     parser.add_option('-H',
                       dest='tgtHost',
                       type='string',
@@ -41,16 +48,17 @@ def main():
                       )
     parser.add_option('-p',
                       dest='tgtPort',
-                      type='int',
+                      type='string',
                       help='specify target port[s] separated by comma'
                       )
     (options, args) = parser.parse_args()
     tgtHost = options.tgtHost
-    tgtPorts = str(options.tgtPort).split(', ')
+    tgtPorts = str(options.tgtPort).split(',')
     if tgtHost is None or tgtPorts[0] is None:
         print '[-] You must specify a target host and port[s].'
         exit(0)
     portScan(tgtHost, tgtPorts)
+
 
 if __name__ == '__main__':
     main()
