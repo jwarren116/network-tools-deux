@@ -1,28 +1,6 @@
 import optparse
 import socket
 
-parser = optparse.OptionParser('usage %prog -H <target host> -p <target port>')
-parser.add_option('-H',
-                  dest='tgtHost',
-                  type='string',
-                  help='specify target host'
-                  )
-
-parser.add_option('-p',
-                  dest='tgtPort',
-                  type='int',
-                  help='specify target port'
-                  )
-
-(options, args) = parser.parse_args()
-
-tgtHost = options.tgtHost
-tgtPort = options.tgtPort
-
-if tgtHost is None or tgtPort is None:
-    print parser.usage
-    exit(0)
-
 
 def connScan(tgtHost, tgtPort):
     try:
@@ -44,8 +22,32 @@ def portScan(tgtHost, tgtPorts):
         tgtName = socket.gethostbyaddr(tgtIP)
         print '\n[+] Scan results for: %s' % tgtName[0]
     except: # make it stop!
-        print '\n[+] Scan results for: %s' % tgtIP
+        print '\n[+] Scan results for: ' + tgtIP
     socket.setdefaulttimeout(1)
     for tgtPort in tgtPorts:
-        print 'Scanning port %d' % tgtPort
+        print 'Scanning port ' + tgtPort
         connScan(tgtHost, int(tgtPort))
+
+
+def main():
+    parser = optparse.OptionParser('usage %prog -H <target host> -p <target port>')
+    parser.add_option('-H',
+                      dest='tgtHost',
+                      type='string',
+                      help='specify target host'
+                      )
+    parser.add_option('-p',
+                      dest='tgtPort',
+                      type='int',
+                      help='specify target port'
+                      )
+    (options, args) = parser.parse_args()
+    tgtHost = options.tgtHost
+    tgtPorts = str(options.tgtPort).split(', ')
+    if tgtHost is None or tgtPorts[0] is None:
+        print parser.usage
+        exit(0)
+    portScan(tgtHost, tgtPorts)
+
+if __name__ == '__main__':
+    main()
