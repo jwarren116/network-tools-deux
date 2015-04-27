@@ -39,13 +39,13 @@ def main():
     parser.add_option('-p',
                       dest='tgtPort',
                       type='int',
-                      help='specify target port'
+                      help='specify target port[s] separated by comma'
                       )
     (options, args) = parser.parse_args()
     tgtHost = options.tgtHost
     tgtPorts = str(options.tgtPort).split(', ')
     if tgtHost is None or tgtPorts[0] is None:
-        print parser.usage
+        print '[-] You must specify a target host and port[s].'
         exit(0)
     portScan(tgtHost, tgtPorts)
 
