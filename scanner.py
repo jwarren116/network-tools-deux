@@ -6,7 +6,10 @@ def connScan(tgtHost, tgtPort):
     try:
         connSkt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connSkt.connect((tgtHost, tgtPort))
+        connSkt.send('SomeText\r\n')
+        results = connSkt.recv(100)
         print '[+]%d/tcp open' % tgtPort
+        print '[+] %s' % str(results)
         connSkt.close()
     except: # fix bare exception!!!!!!!!!!!!
         print '[-]%d/tcp closed' % tgtPort
