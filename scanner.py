@@ -13,8 +13,8 @@ def connScan(tgtHost, tgtPort):
         results = connSkt.recv(100)
         screenLock.acquire()
         print '[+]%d/tcp open' % tgtPort
-        print '[+] %s' % str(results).split('\n')[0]
-    except:  # fix bare exception!!!!!!!!!!!!
+        print '   %s' % str(results).split('\n')[0]
+    except socket.timeout:
         screenLock.acquire()
         print '[-]%d/tcp closed' % tgtPort
     finally:
@@ -25,13 +25,13 @@ def connScan(tgtHost, tgtPort):
 def portScan(tgtHost, tgtPorts):
     try:
         tgtIP = socket.gethostbyname(tgtHost)
-    except:  # here too
+    except socket.gaierror:
         print "[-] Cannot resolve '%s': Unknown host" % tgtHost
         return
     try:
         tgtName = socket.gethostbyaddr(tgtIP)
         print '\n[+] Scan results for: %s' % tgtName[0]
-    except:  # make it stop!
+    except socket.herror:
         print '\n[+] Scan results for: ' + tgtIP
     socket.setdefaulttimeout(1)
     for tgtPort in tgtPorts:
