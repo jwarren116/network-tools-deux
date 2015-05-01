@@ -21,7 +21,7 @@ def print_cookies(url):
 
 
 user_agent = [('User-agent', 'Mozilla/5.0 (X11; U; Linux 2.4.2-2 i586; en-US; m18) Gecko/20010131 Netscape6/6.01')]
-url = 'http://www.jwarren.co/http/'
+url = 'http://whatsmyuseragent.com/'
 
 test_agent(url, user_agent)
 print_cookies(url)
